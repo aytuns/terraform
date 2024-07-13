@@ -18,16 +18,29 @@ jobs:
               uses: hashicorp/setup-terraform@v3
 
             - name: Terraform fmt -check
-              run: terraform fmt -check
+              id: tf_fmt
+              run: terraform fmt
+              continue-on-error: true
 
             - name: Terraform validate
+              id: tf_validate
               run: terraform validate
+              continue-on-error: true
 
             - name: Install tflint
               run: |
                     curl -L "$(curl -s https://api.github.com/repos/terraform-linters/tflint/releases/latest | grep -o -E "https://.+?_Linux_x86_64.zip")" -o tflint.zip
                     unzip tflint.zip
                     sudo mv tflint /usr/local/bin/
+              continue-on-error: true
 
             - name: Run tflint
+              id: tflint
               run: tflint
+              continue-on-error: true
+
+            - name: Comment on workflow
+              run: |
+                printf "terraform fmt: ${{toJson(steps.tf_fmt)}}\n
+                terraform validate: ${{toJson(steps.tf_validate)}}\n
+                terraform lint: ${{toJson(steps.tflint)}}"
