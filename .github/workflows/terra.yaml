@@ -1,0 +1,33 @@
+name: Terraform CI
+
+on:
+    push:
+        branches: [ main ]
+    pull_request:
+        branches:
+            - main
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Set up Terraform
+              uses: hashicorp/setup-terraform@v1
+
+            - name: Terraform fmt -check
+              run: terraform fmt -check
+
+            - name: Terraform validate
+              run: terraform validate
+
+            - name: Install tflint
+              run: |
+                    curl -L "$(curl -s https://api.github.com/repos/terraform-linters/tflint/releases/latest | grep -o -E "https://.+?_Linux_x86_64.zip")" -o tflint.zip
+                    unzip tflint.zip
+                    sudo mv tflint /usr/local/bin/
+
+            - name: Run tflint
+              run: tflint
