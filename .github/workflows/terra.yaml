@@ -8,7 +8,7 @@ on:
             - main
 
 jobs:
-    TF_build:
+    TF_Build:
         runs-on: ubuntu-latest
 
         steps:
