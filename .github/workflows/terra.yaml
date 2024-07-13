@@ -50,6 +50,6 @@ jobs:
               run: |
                 printf "terraform fmt: ${{toJson(steps.tf_fmt)}}\n
                 terraform validate: ${{toJson(steps.tf_validate)}}\n
-                terraform lint: ${{toJson(steps.tflint_setup)}}\n
-                terraform lint: ${{toJson(steps.tflint_init)}}\n
-                terraform lint: ${{toJson(steps.tflint_run)}}"
+                terraform lint_setup: ${{toJson(steps.tflint_setup)}}\n
+                terraform lint_init: ${{toJson(steps.tflint_init)}}\n
+                terraform lint_run: ${{toJson(steps.tflint_run)}}"
