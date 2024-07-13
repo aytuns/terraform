@@ -8,7 +8,7 @@ on:
             - main
 
 jobs:
-    build:
+    TF_build:
         runs-on: ubuntu-latest
 
         steps:
@@ -27,20 +27,29 @@ jobs:
               run: terraform validate
               continue-on-error: true
 
-            - name: Install tflint
-              run: |
-                    curl -L "$(curl -s https://api.github.com/repos/terraform-linters/tflint/releases/latest | grep -o -E "https://.+?_Linux_x86_64.zip")" -o tflint.zip
-                    unzip tflint.zip
-                    sudo mv tflint /usr/local/bin/
+            - name: Setup TFLint
+              id: tflint_setup
+              uses: terraform-linters/setup-tflint@v4
+              with:
+                tflint_version: v0.50.3
               continue-on-error: true
-
-            - name: Run tflint
-              id: tflint
-              run: tflint
+        
+            - name: Init TFLint
+              id: tflint_init
+              run: tflint --init
+              env:
+                GITHUB_TOKEN: ${{ github.token }}
+              continue-on-error: true
+        
+            - name: Run TFLint
+              id: tflint_run
+              run: tflint -f compact
               continue-on-error: true
 
             - name: Comment on workflow
               run: |
                 printf "terraform fmt: ${{toJson(steps.tf_fmt)}}\n
                 terraform validate: ${{toJson(steps.tf_validate)}}\n
-                terraform lint: ${{toJson(steps.tflint)}}"
+                terraform lint: ${{toJson(steps.tflint_setup)}}\n
+                terraform lint: ${{toJson(steps.tflint_init)}}\n
+                terraform lint: ${{toJson(steps.tflint_run)}}"
